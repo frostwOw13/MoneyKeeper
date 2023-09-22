@@ -28,7 +28,7 @@ public class MainController {
         return principal.getName();
     }
 
-    @PostMapping("/addTransaction")
+    @PostMapping("/transactions")
     public Transaction addTransaction(@RequestBody TransactionRequest transactionRequest) {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -42,5 +42,11 @@ public class MainController {
 
         transactionRepository.save(transaction);
         return transaction;
+    }
+
+    @DeleteMapping("/transactions/{id}")
+    public String deleteTransaction(@PathVariable int id) {
+        transactionRepository.deleteById(id);
+        return "Transaction with id = " + id + " successfully deleted!";
     }
 }
