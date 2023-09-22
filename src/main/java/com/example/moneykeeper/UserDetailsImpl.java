@@ -8,7 +8,7 @@ import java.util.Collection;
 
 public class UserDetailsImpl implements UserDetails {
 
-    private Long id;
+    private int id;
     private String username;
     private String email;
     private String password;
@@ -22,7 +22,7 @@ public class UserDetailsImpl implements UserDetails {
         );
     }
 
-    public UserDetailsImpl(Long id, String username, String email, String password) {
+    public UserDetailsImpl(int id, String username, String email, String password) {
         this.id = id;
         this.username = username;
         this.email = email;
