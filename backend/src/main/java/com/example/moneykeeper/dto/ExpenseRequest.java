@@ -1,12 +1,10 @@
 package com.example.moneykeeper.dto;
 
-import java.time.LocalDate;
-
-public class TransactionRequest {
-
+public class ExpenseRequest {
     private int amount;
     private String name;
     private String date;
+    private int budgetId;
 
     public int getAmount() {
         return amount;
@@ -18,5 +16,9 @@ public class TransactionRequest {
 
     public String getDate() {
         return date;
+    }
+
+    public int getBudgetId() {
+        return budgetId;
     }
 }

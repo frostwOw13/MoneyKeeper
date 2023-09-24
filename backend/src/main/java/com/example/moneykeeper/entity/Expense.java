@@ -3,8 +3,8 @@ package com.example.moneykeeper.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "transactions")
-public class Transaction {
+@Table(name = "expenses")
+public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -19,16 +19,16 @@ public class Transaction {
     private String date;
 
     @OneToOne
-    private User user;
+    private Budget budget;
 
-    public Transaction() {
+    public Expense() {
     }
 
-    public Transaction(String name, int amount, String date, User userId) {
+    public Expense(String name, int amount, String date, Budget budget) {
         this.name = name;
         this.amount = amount;
         this.date = date;
-        this.user = userId;
+        this.budget = budget;
     }
 
     public int getId() {
@@ -63,11 +63,11 @@ public class Transaction {
         this.date = date;
     }
 
-    public User getUserId() {
-        return user;
+    public Budget getBudget() {
+        return budget;
     }
 
-    public void setUserId(User userId) {
-        this.user = userId;
+    public void setBudget(Budget budget) {
+        this.budget = budget;
     }
 }
