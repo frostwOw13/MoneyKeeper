@@ -11,7 +11,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +40,7 @@ public class BudgetController {
         
         Budget budget = new Budget(
                 budgetRequest.getColor(),
-                new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(LocalTime.now()),
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()),
                 budgetRequest.getName(),
                 budgetRequest.getAmount(),
                 user.orElse(null)

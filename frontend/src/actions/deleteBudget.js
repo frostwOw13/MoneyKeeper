@@ -7,14 +7,14 @@ import { toast } from "react-toastify";
 // helpers
 import { deleteItem, getAllMatchingItems } from "../helpers";
 
-export function deleteBudget({ params }) {
+export async function deleteBudget({params}) {
   try {
-    deleteItem({
+    await deleteItem({
       key: "budgets",
       id: params.id,
     });
 
-    const associatedExpenses = getAllMatchingItems({
+    /*const associatedExpenses = getAllMatchingItems({
       category: "expenses",
       key: "budgetId",
       value: params.id,
@@ -25,7 +25,7 @@ export function deleteBudget({ params }) {
         key: "expenses",
         id: expense.id,
       });
-    });
+    });*/
 
     toast.success("Budget deleted successfully!");
   } catch (e) {

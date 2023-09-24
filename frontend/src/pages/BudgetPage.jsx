@@ -14,11 +14,13 @@ import { createExpense, deleteItem, getAllMatchingItems } from "../helpers";
 
 // loader
 export async function budgetLoader({ params }) {
-  const budget = await getAllMatchingItems({
+  let budget = await getAllMatchingItems({
     category: "budgets",
     key: "id",
     value: params.id,
-  })[0];
+  });
+
+  budget = budget[0]
 
   const expenses = await getAllMatchingItems({
     category: "expenses",

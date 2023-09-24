@@ -1,0 +1,4 @@
+{
+  "SERVER_URL": "http://localhost:8080",
+  "JWT_TOKEN": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJydXNsYW4ueXVzdXBvdiIsImV4cCI6MTY5NTU1MTMyOH0.Scdt-BN6U6ZAOz4z1cDAd0OjPRLpmACVMJtGfQbSHOk"
+}

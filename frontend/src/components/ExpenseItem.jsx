@@ -14,12 +14,14 @@ import {
 const ExpenseItem = ({ expense, showBudget }) => {
   const fetcher = useFetcher();
 
-  const budget = getAllMatchingItems({
+  let budget = getAllMatchingItems({
     category: "budgets",
     key: "id",
     value: expense.budgetId,
-  })[0];
+  });
 
+  budget = budget[0];
+console.log(budget)
   return (
     <>
       <td>{expense.name}</td>
