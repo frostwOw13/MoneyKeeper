@@ -2,9 +2,6 @@ package com.example.moneykeeper.entity;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "transactions")
 public class Transaction {
@@ -19,7 +16,7 @@ public class Transaction {
     private int amount;
 
     @Column
-    private Timestamp date;
+    private String date;
 
     @OneToOne
     private User user;
@@ -27,7 +24,7 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(String name, int amount, Timestamp date, User userId) {
+    public Transaction(String name, int amount, String date, User userId) {
         this.name = name;
         this.amount = amount;
         this.date = date;
@@ -58,11 +55,11 @@ public class Transaction {
         this.amount = amount;
     }
 
-    public Timestamp getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Timestamp date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
