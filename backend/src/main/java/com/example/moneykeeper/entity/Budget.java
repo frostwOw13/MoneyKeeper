@@ -2,6 +2,8 @@ package com.example.moneykeeper.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "budgets")
 public class Budget {
@@ -24,6 +26,9 @@ public class Budget {
 
     @OneToOne
     private User user;
+
+    @OneToMany(cascade= CascadeType.ALL, mappedBy = "budget")
+    private List<Expense> expenses;
 
     public Budget() {
     }

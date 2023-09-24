@@ -13,19 +13,19 @@ import Table from "../components/Table";
 
 //  helper functions
 import {
-    fetchDataDB,
     createBudget,
     createExpense,
     deleteItem,
     fetchData,
+    fetchDataTemp,
     waait,
 } from "../helpers";
 
 // loader
 export async function dashboardLoader() {
-    const userName = fetchData("userName");
-    const budgets = await fetchDataDB("budgets");
-    const expenses = fetchData("expenses");
+    const userName = fetchDataTemp("userName");
+    const budgets = await fetchData("budgets");
+    const expenses = await fetchData("expenses");
 
     return {userName, budgets, expenses};
 }
@@ -53,6 +53,7 @@ export async function dashboardAction({request}) {
                 name: values.newBudget,
                 amount: values.newBudgetAmount,
             });
+
             return toast.success("Budget created!");
         } catch (e) {
             throw new Error("There was a problem creating your budget.");
@@ -61,11 +62,12 @@ export async function dashboardAction({request}) {
 
     if (_action === "createExpense") {
         try {
-            createExpense({
+            await createExpense({
                 name: values.newExpense,
                 amount: values.newExpenseAmount,
                 budgetId: values.newExpenseBudget,
             });
+
             return toast.success(`Expense ${values.newExpense} created!`);
         } catch (e) {
             throw new Error("There was a problem creating your expense.");
@@ -74,7 +76,7 @@ export async function dashboardAction({request}) {
 
     if (_action === "deleteExpense") {
         try {
-            deleteItem({
+            await deleteItem({
                 key: "expenses",
                 id: values.expenseId,
             });
@@ -108,21 +110,21 @@ const Dashboard = () => {
                                         <BudgetItem key={budget.id} budget={budget}/>
                                     ))}
                                 </div>
-                                {/*{expenses && expenses.length > 0 && (*/}
-                                {/*    <div className="grid-md">*/}
-                                {/*        <h2>Recent Expenses</h2>*/}
-                                {/*        <Table*/}
-                                {/*            expenses={expenses*/}
-                                {/*                .sort((a, b) => b.createdAt - a.createdAt)*/}
-                                {/*                .slice(0, 8)}*/}
-                                {/*        />*/}
-                                {/*        {expenses.length > 8 && (*/}
-                                {/*            <Link to="expenses" className="btn btn--dark">*/}
-                                {/*                View all expenses*/}
-                                {/*            </Link>*/}
-                                {/*        )}*/}
-                                {/*    </div>*/}
-                                {/*)}*/}
+                                {expenses && expenses.length > 0 && (
+                                    <div className="grid-md">
+                                        <h2>Recent Expenses</h2>
+                                        <Table
+                                            expenses={expenses
+                                                .sort((a, b) => b.date - a.date)
+                                                .slice(0, 8)}
+                                        />
+                                        {expenses.length > 8 && (
+                                            <Link to="expenses" className="btn btn--dark">
+                                                View all expenses
+                                            </Link>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="grid-sm">

@@ -18,7 +18,7 @@ public class Expense {
     @Column
     private String date;
 
-    @OneToOne
+    @ManyToOne
     private Budget budget;
 
     public Expense() {

@@ -5,18 +5,19 @@ export const waait = () =>
 
 // colors
 const generateRandomColor = async () => {
-    const budgets = await fetchDataDB("budgets");
+    const budgets = await fetchData("budgets");
     const existingBudgetLength = budgets?.length ?? 0;
 
     return `${existingBudgetLength * 34} 65% 50%`;
 };
 
-// Local storage
-export const fetchData = (key) => {
+// TODO: rewrite to use MySQL
+export const fetchDataTemp = (key) => {
     return JSON.parse(localStorage.getItem(key));
 };
 
-export const fetchDataDB = async (category) => {
+// fetch data from db
+export const fetchData = async (category) => {
     return await fetch(config.SERVER_URL + "/api/" + category, {
         method: "GET",
         headers: {
@@ -28,13 +29,33 @@ export const fetchDataDB = async (category) => {
         .catch((error) => console.log(error));
 }
 
-// Get all items from local storage
-export const getAllMatchingItems = async ({category, key, value}) => {
-    const data = await fetchDataDB(category) ?? [];
-    return data.filter((item) => item[key] === +value);
+// post data to db
+export const postData = async (category, body) => {
+    return await fetch(config.SERVER_URL + "/api/" + category, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${config.JWT_TOKEN}`
+        },
+        body: JSON.stringify(body)
+    })
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
+}
+
+// Get all budgets from db by budget id
+export const getAllMatchingBudgets = async (value) => {
+    const data = await fetchData("budgets") ?? [];
+    return data.filter((item) => item["id"] === +value);
 };
 
-// delete item from local storage
+// Get all expenses from db by budget id
+export const getAllMatchingExpenses = async (value) => {
+    const data = await fetchData("expenses") ?? [];
+    return data.filter((item) => item["budget"].id === +value);
+};
+
+// delete item from db
 export const deleteItem = async ({key, id}) => {
     return await fetch(config.SERVER_URL + "/api/" + key + "/" + id, {
         method: "DELETE",
@@ -55,45 +76,31 @@ export const createBudget = async ({name, amount}) => {
         amount: +amount,
     };
 
-    return await fetch(config.SERVER_URL + "/api/budgets", {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.JWT_TOKEN}`
-        },
-        body: JSON.stringify(newItem)
-    })
-        .then((response) => response.json())
-        .catch((error) => console.log(error));
+    return await postData("budgets", newItem)
 };
 
 // create expense
-export const createExpense = ({name, amount, budgetId}) => {
+export const createExpense = async ({name, amount, budgetId}) => {
     const newItem = {
-        id: crypto.randomUUID(),
-        name: name,
-        createdAt: Date.now(),
         amount: +amount,
+        name: name,
         budgetId: budgetId,
     };
-    const existingExpenses = fetchData("expenses") ?? [];
-    return localStorage.setItem(
-        "expenses",
-        JSON.stringify([...existingExpenses, newItem])
-    );
+
+    return await postData("expenses", newItem)
 };
 
 // total spent by budget
-export const calculateSpentByBudget = (budgetId) => {
-    const expenses = fetchData("expenses") ?? [];
-    const budgetSpent = expenses.reduce((acc, expense) => {
-        // check if expense.id === budgetId I passed in
-        if (expense.budgetId !== budgetId) return acc;
+export const calculateSpentByBudget = async (budgetId) => {
+    const expenses = await fetchData("expenses") ?? [];
 
+    return expenses.reduce((acc, expense) => {
+        // check if expense.id === budgetId I passed in
+
+        if (expense.budget.id !== budgetId) return acc;
         // add the current amount to my total
         return (acc += expense.amount);
     }, 0);
-    return budgetSpent;
 };
 
 // FORMATTING

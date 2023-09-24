@@ -10,10 +10,20 @@ import {
     formatCurrency,
     formatPercentage,
 } from "../helpers";
+import {useEffect, useState} from "react";
 
 const BudgetItem = ({budget, showDelete = false}) => {
+    const [spent, setSpent] = useState(0)
     const {id, name, amount, color} = budget;
-    const spent = calculateSpentByBudget(id);
+
+        async function getSpent() {
+            const data = await calculateSpentByBudget(id)
+            setSpent(data);
+        }
+
+        getSpent()
+            .then((response) => response)
+            .catch((error) => console.log(error));
 
     return (
         <div
