@@ -37,22 +37,27 @@ public class ExpenseController {
     @GetMapping("/expenses")
     public List<Expense> getAllExpenses() {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> user = userRepository.findUserByUsername(principal.getUsername());
 
-        List<Budget> budgets = budgetRepository.findBudgetsByUserId(user.get().getId());
+        List<Budget> budgets = budgetRepository.findBudgetsByUserId(principal.getId());
 
         List<Expense> expenses = new ArrayList<>();
         for (Budget budget : budgets) {
-            expenses.addAll(expenseRepository.findExpensesByBudget(budget));
+            expenses.addAll(expenseRepository.findExpensesByBudgetId(budget.getId()));
         }
 
         return expenses;
+    }
+
+    @GetMapping("/expenses/{budgetId}")
+    public List<Expense> getAllExpensesByBudget(@PathVariable int budgetId) {
+        return expenseRepository.findExpensesByBudgetId(budgetId);
     }
 
     @PostMapping("/expenses")
     public Expense addExpense(@RequestBody ExpenseRequest expenseRequest) {
         Optional<Budget> budget = budgetRepository.findById(expenseRequest.getBudgetId());
 
+        // TODO: add exception if principal is null
         Expense expense = new Expense(
                 expenseRequest.getName(),
                 expenseRequest.getAmount(),

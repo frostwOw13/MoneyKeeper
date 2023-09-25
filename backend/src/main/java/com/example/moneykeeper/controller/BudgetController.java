@@ -10,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -30,17 +28,25 @@ public class BudgetController {
     @GetMapping("/budgets")
     public List<Budget> getAllBudgets() {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> user = userRepository.findUserByUsername(principal.getUsername());
 
-        return budgetRepository.findBudgetsByUserId(user.get().getId());
+        return budgetRepository.findBudgetsByUserId(principal.getId());
+    }
+
+    @GetMapping("/budgets/{id}")
+    public Budget getBudgetById(@PathVariable int id) {
+        UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return budgetRepository.findBudgetsByIdAndUserId(id, principal.getId());
     }
 
     @PostMapping("/budgets")
     public Budget addBudget(@RequestBody BudgetRequest budgetRequest) {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Optional<User> user = userRepository.findUserByUsername(principal.getUsername());
-        
+        Optional<User> user = userRepository.findUserById(principal.getId());
+
+
+        // TODO: add exception if principal is null
         Budget budget = new Budget(
                 budgetRequest.getColor(),
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()),

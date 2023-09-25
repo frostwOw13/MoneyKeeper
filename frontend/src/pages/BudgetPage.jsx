@@ -10,15 +10,18 @@ import BudgetItem from "../components/BudgetItem";
 import Table from "../components/Table";
 
 // helpers
-import {createExpense, deleteItem, getAllMatchingExpenses, getAllMatchingBudgets} from "../helpers";
+import {
+    createExpense,
+    deleteItem,
+    getBudgetById,
+    getExpensesByBudgetId
+} from "../helpers";
 
 // loader
 export async function budgetLoader({params}) {
-    let budget = await getAllMatchingBudgets(params.id);
+    let budget = await getBudgetById(params.id);
 
-    budget = budget[0]
-
-    const expenses = await getAllMatchingExpenses(budget.id);
+    const expenses = await getExpensesByBudgetId(budget.id);
 
     if (!budget) {
         throw new Error("The budget you’re trying to find doesn’t exist");

@@ -31,6 +31,9 @@ export async function dashboardLoader() {
 
     if (localStorage.getItem("jwt").trim().length > 0) {
         username = await fetchUserData();
+    }
+
+    if (username) {
         budgets = await fetchData("budgets");
         expenses = await fetchData("expenses");
     }
@@ -136,7 +139,11 @@ export async function dashboardAction({request}) {
 }
 
 const Dashboard = () => {
-    const {username, budgets, expenses} = useLoaderData();
+    let {username, budgets, expenses} = useLoaderData();
+
+    if (localStorage.getItem("jwt").trim().length === 0) {
+        username = null;
+    }
 
     return (
         <>
@@ -154,9 +161,9 @@ const Dashboard = () => {
                                 </div>
                                 <h2>Existing Budgets</h2>
                                 <div className="budgets">
-                                    {budgets.map((budget) => (
-                                        <BudgetItem key={budget.id} budget={budget}/>
-                                    ))}
+                                    {budgets.map((budget) => {
+                                        return <BudgetItem key={budget.id} budget={budget}/>
+                                    })}
                                 </div>
                                 {expenses && expenses.length > 0 && (
                                     <div className="grid-md">
