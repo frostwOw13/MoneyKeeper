@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -49,7 +50,7 @@ public class BudgetController {
         // TODO: add exception if principal is null
         Budget budget = new Budget(
                 budgetRequest.getColor(),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()),
+                LocalDate.now(),
                 budgetRequest.getName(),
                 budgetRequest.getAmount(),
                 user.orElse(null)

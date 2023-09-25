@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -61,7 +62,7 @@ public class ExpenseController {
         Expense expense = new Expense(
                 expenseRequest.getName(),
                 expenseRequest.getAmount(),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()),
+                LocalDate.now(),
                 budget.orElse(null)
         );
 

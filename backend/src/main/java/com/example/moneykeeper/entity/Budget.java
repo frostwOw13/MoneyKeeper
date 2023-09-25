@@ -2,6 +2,7 @@ package com.example.moneykeeper.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -16,7 +17,7 @@ public class Budget {
     private String color;
 
     @Column
-    private String date;
+    private LocalDate date;
 
     @Column
     private String name;
@@ -33,7 +34,7 @@ public class Budget {
     public Budget() {
     }
 
-    public Budget(String color, String date, String name, int amount, User user) {
+    public Budget(String color, LocalDate date, String name, int amount, User user) {
         this.color = color;
         this.date = date;
         this.name = name;
@@ -57,11 +58,11 @@ public class Budget {
         this.color = color;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 

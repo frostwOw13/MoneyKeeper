@@ -2,6 +2,8 @@ package com.example.moneykeeper.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "expenses")
 public class Expense {
@@ -16,7 +18,7 @@ public class Expense {
     private int amount;
 
     @Column
-    private String date;
+    private LocalDate date;
 
     @ManyToOne
     private Budget budget;
@@ -24,7 +26,7 @@ public class Expense {
     public Expense() {
     }
 
-    public Expense(String name, int amount, String date, Budget budget) {
+    public Expense(String name, int amount, LocalDate date, Budget budget) {
         this.name = name;
         this.amount = amount;
         this.date = date;
@@ -55,11 +57,11 @@ public class Expense {
         this.amount = amount;
     }
 
-    public String getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
