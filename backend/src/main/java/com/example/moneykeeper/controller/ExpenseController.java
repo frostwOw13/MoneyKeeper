@@ -4,6 +4,7 @@ import com.example.moneykeeper.UserDetailsImpl;
 import com.example.moneykeeper.dto.ExpenseRequest;
 import com.example.moneykeeper.entity.Budget;
 import com.example.moneykeeper.entity.Expense;
+import com.example.moneykeeper.entity.User;
 import com.example.moneykeeper.repository.BudgetRepository;
 import com.example.moneykeeper.repository.ExpenseRepository;
 import com.example.moneykeeper.repository.UserRepository;
@@ -15,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +26,9 @@ import java.util.Optional;
 public class ExpenseController {
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ExpenseRepository expenseRepository;
 
     @Autowired
@@ -31,7 +36,17 @@ public class ExpenseController {
     
     @GetMapping("/expenses")
     public List<Expense> getAllExpenses() {
-        return expenseRepository.findAll();
+        UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> user = userRepository.findUserByUsername(principal.getUsername());
+
+        List<Budget> budgets = budgetRepository.findBudgetsByUserId(user.get().getId());
+
+        List<Expense> expenses = new ArrayList<>();
+        for (Budget budget : budgets) {
+            expenses.addAll(expenseRepository.findExpensesByBudget(budget));
+        }
+
+        return expenses;
     }
 
     @PostMapping("/expenses")

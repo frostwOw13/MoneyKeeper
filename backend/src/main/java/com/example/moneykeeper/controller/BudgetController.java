@@ -29,7 +29,10 @@ public class BudgetController {
 
     @GetMapping("/budgets")
     public List<Budget> getAllBudgets() {
-        return budgetRepository.findAll();
+        UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> user = userRepository.findUserByUsername(principal.getUsername());
+
+        return budgetRepository.findBudgetsByUserId(user.get().getId());
     }
 
     @PostMapping("/budgets")

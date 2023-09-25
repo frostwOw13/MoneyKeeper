@@ -51,7 +51,10 @@ public class SecurityController {
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         userRepository.save(user);
 
-        return ResponseEntity.ok("Success");
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signupRequest.getUsername(), signupRequest.getPassword()));
+        String jwt = jwtCore.generateToken(authentication);
+
+        return ResponseEntity.ok(jwt);
     }
 
     @PostMapping("/signin")
@@ -65,6 +68,7 @@ public class SecurityController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtCore.generateToken(authentication);
+
         return ResponseEntity.ok(jwt);
     }
 }

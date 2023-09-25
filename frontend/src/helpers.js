@@ -11,10 +11,44 @@ const generateRandomColor = async () => {
     return `${existingBudgetLength * 34} 65% 50%`;
 };
 
-// TODO: rewrite to use MySQL
-export const fetchDataTemp = (key) => {
-    return JSON.parse(localStorage.getItem(key));
-};
+// sign in
+export const signin = async (userData) => {
+    return await fetch(config.SERVER_URL + "/auth/signin", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+    })
+        .then((response) => response)
+        .catch((error) => error);
+}
+
+// sign up
+export const signup = async (userData) => {
+    return await fetch(config.SERVER_URL + "/auth/signup", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+    })
+        .then((response) => response)
+        .catch((error) => error);
+}
+
+// fetch user data from db
+export const fetchUserData = async () => {
+    return await fetch(config.SERVER_URL + "/user/", {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
+        }
+    })
+        .then((response) => response.text())
+        .catch((error) => console.log(error));
+}
 
 // fetch data from db
 export const fetchData = async (category) => {
@@ -22,7 +56,7 @@ export const fetchData = async (category) => {
         method: "GET",
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.JWT_TOKEN}`
+            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
         }
     })
         .then((response) => response.json())
@@ -35,7 +69,7 @@ export const postData = async (category, body) => {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.JWT_TOKEN}`
+            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
         },
         body: JSON.stringify(body)
     })
@@ -43,12 +77,15 @@ export const postData = async (category, body) => {
         .catch((error) => console.log(error));
 }
 
+
+// TODO: move logic to get budget by id to backend
 // Get all budgets from db by budget id
 export const getAllMatchingBudgets = async (value) => {
     const data = await fetchData("budgets") ?? [];
     return data.filter((item) => item["id"] === +value);
 };
 
+// TODO: move logic to get expenses by id to backend
 // Get all expenses from db by budget id
 export const getAllMatchingExpenses = async (value) => {
     const data = await fetchData("expenses") ?? [];
@@ -61,7 +98,7 @@ export const deleteItem = async ({key, id}) => {
         method: "DELETE",
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${config.JWT_TOKEN}`
+            'Authorization': `Bearer ${localStorage.getItem("jwt")}`
         }
     })
         .then((response) => response.json())

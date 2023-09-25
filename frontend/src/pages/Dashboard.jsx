@@ -17,17 +17,25 @@ import {
     createExpense,
     deleteItem,
     fetchData,
-    fetchDataTemp,
+    fetchUserData,
+    signin,
+    signup,
     waait,
 } from "../helpers";
 
 // loader
 export async function dashboardLoader() {
-    const userName = fetchDataTemp("userName");
-    const budgets = await fetchData("budgets");
-    const expenses = await fetchData("expenses");
+    let username;
+    let budgets;
+    let expenses;
 
-    return {userName, budgets, expenses};
+    if (localStorage.getItem("jwt").trim().length > 0) {
+        username = await fetchUserData();
+        budgets = await fetchData("budgets");
+        expenses = await fetchData("expenses");
+    }
+
+    return {username, budgets, expenses};
 }
 
 // action
@@ -38,10 +46,50 @@ export async function dashboardAction({request}) {
     const {_action, ...values} = Object.fromEntries(data);
 
     // new user submission
-    if (_action === "newUser") {
+    if (_action === "signin") {
         try {
-            localStorage.setItem("userName", JSON.stringify(values.userName));
-            return toast.success(`Welcome, ${values.userName}`);
+            const userData = {
+                username: values.username,
+                password: values.password
+            }
+
+            const jwt = await signin(userData)
+                .then((response) => {
+                    if (response.ok) {
+                        return response.text()
+                    }
+                })
+
+            if (jwt) {
+                localStorage.setItem("jwt", jwt);
+                return toast.success(`Welcome, ${values.username}`);
+            }
+            return toast.error("Invalid username or password!")
+        } catch (e) {
+            throw new Error("There was a problem creating your account.");
+        }
+    }
+
+    if (_action === "signup") {
+        try {
+            const userData = {
+                username: values.username,
+                email: values.email,
+                password: values.password
+            }
+
+            const jwt = await signup(userData)
+                .then((response) => {
+                    if (response.ok) {
+                        return response.text()
+                    }
+                })
+
+            if (jwt) {
+                localStorage.setItem("jwt", jwt);
+                return toast.success(`Welcome, ${values.username}`);
+            }
+            return toast.error("Invalid username or password!")
         } catch (e) {
             throw new Error("There was a problem creating your account.");
         }
@@ -88,14 +136,14 @@ export async function dashboardAction({request}) {
 }
 
 const Dashboard = () => {
-    const {userName, budgets, expenses} = useLoaderData();
+    const {username, budgets, expenses} = useLoaderData();
 
     return (
         <>
-            {userName ? (
+            {username ? (
                 <div className="dashboard">
                     <h1>
-                        Welcome back, <span className="accent">{userName}</span>
+                        Welcome back, <span className="accent">{username}</span>
                     </h1>
                     <div className="grid-sm">
                         {budgets && budgets.length > 0 ? (

@@ -8,20 +8,25 @@ import wave from "../assets/wave.svg";
 import Nav from "../components/Nav";
 
 //  helper functions
-import {fetchData, fetchDataTemp} from "../helpers"
+import {fetchUserData} from "../helpers"
 
 // loader
-export function mainLoader() {
-    const userName = fetchDataTemp("userName");
-    return {userName}
+export async function mainLoader() {
+    let username;
+
+    if (localStorage.getItem("jwt").trim().length > 0) {
+        username = await fetchUserData();
+    }
+
+    return {username};
 }
 
 const Main = () => {
-    const {userName} = useLoaderData()
+    const {username} = useLoaderData()
 
     return (
         <div className="layout">
-            <Nav userName={userName}/>
+            <Nav username={username}/>
             <main>
                 <Outlet/>
             </main>

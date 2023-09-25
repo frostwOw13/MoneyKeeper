@@ -5,11 +5,10 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/secured")
+@RequestMapping("/user")
 public class MainController {
-    @GetMapping("/user")
+    @GetMapping("/")
     public String userAccess(Principal principal) {
-        System.out.println(principal.getName());
         return principal.getName();
     }
 }
