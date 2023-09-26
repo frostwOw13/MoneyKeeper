@@ -37,10 +37,12 @@ public class SecurityController {
 
     @PostMapping("/signup")
     ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
+        // TODO: display error in frontend
         if (userRepository.existsUserByUsername(signupRequest.getUsername())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Choose different username");
         }
 
+        // TODO: display error in frontend
         if (userRepository.existsUserByEmail(signupRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Choose different email");
         }
