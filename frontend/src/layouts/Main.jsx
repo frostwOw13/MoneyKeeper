@@ -14,7 +14,7 @@ import {fetchUserData} from "../helpers"
 export async function mainLoader() {
     let username;
 
-    if (localStorage.getItem("jwt").trim().length > 0) {
+    if (localStorage.getItem("jwt")?.trim().length > 0) {
         username = await fetchUserData();
     }
 

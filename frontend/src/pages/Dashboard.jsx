@@ -29,7 +29,7 @@ export async function dashboardLoader() {
     let budgets;
     let expenses;
 
-    if (localStorage.getItem("jwt").trim().length > 0) {
+    if (localStorage.getItem("jwt")?.trim().length > 0) {
         username = await fetchUserData();
     }
 
@@ -141,7 +141,7 @@ export async function dashboardAction({request}) {
 const Dashboard = () => {
     let {username, budgets, expenses} = useLoaderData();
 
-    if (localStorage.getItem("jwt").trim().length === 0) {
+    if (localStorage.getItem("jwt")?.trim().length === 0) {
         username = null;
     }
 
