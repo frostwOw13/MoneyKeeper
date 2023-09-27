@@ -4,21 +4,18 @@ import com.example.moneykeeper.UserDetailsImpl;
 import com.example.moneykeeper.dto.ExpenseRequest;
 import com.example.moneykeeper.entity.Budget;
 import com.example.moneykeeper.entity.Expense;
-import com.example.moneykeeper.entity.User;
 import com.example.moneykeeper.repository.BudgetRepository;
 import com.example.moneykeeper.repository.ExpenseRepository;
 import com.example.moneykeeper.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
+import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,18 +52,21 @@ public class ExpenseController {
     }
 
     @PostMapping("/expenses")
-    public Expense addExpense(@RequestBody ExpenseRequest expenseRequest) {
+    public Expense addExpense(@RequestBody ExpenseRequest expenseRequest, HttpServletResponse response) throws IOException {
         Optional<Budget> budget = budgetRepository.findById(expenseRequest.getBudgetId());
 
-        // TODO: add exception if principal is null
-        Expense expense = new Expense(
-                expenseRequest.getName(),
-                expenseRequest.getAmount(),
-                LocalDate.now(),
-                budget.orElse(null)
-        );
+        Expense expense = new Expense();
+        try {
+            expense.setName(expenseRequest.getName());
+            expense.setAmount(expenseRequest.getAmount());
+            expense.setDate(LocalDate.now());
+            expense.setBudget(budget.orElse(null));
 
-        expenseRepository.save(expense);
+            expenseRepository.save(expense);
+        } catch (DataIntegrityViolationException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
+
         return expense;
     }
 

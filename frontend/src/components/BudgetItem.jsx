@@ -24,7 +24,7 @@ const BudgetItem = ({budget, showDelete = false}) => {
 
         getSpent()
             .then((response) => response)
-            .catch((error) => console.log(error));
+            .catch((error) => error);
 
     return (
         <div

@@ -8,29 +8,17 @@ const generateRandomColor = async () => {
     const existingBudgetLength = budgets?.length ?? 0;
 
     return `${existingBudgetLength * 34} 65% 50%`;
-};
-
-export const signin = async (userData) => {
-    return await fetch(config.SERVER_URL + "/auth/signin", {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userData)
-    })
-        .then((response) => response)
-        .catch((error) => error);
 }
 
-export const signup = async (userData) => {
-    return await fetch(config.SERVER_URL + "/auth/signup", {
+export const auth = async (action, userData) => {
+    return await fetch(config.SERVER_URL + "/auth/" + action, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(userData)
     })
-        .then((response) => response)
+        .then((response) => response.text())
         .catch((error) => error);
 }
 
@@ -42,8 +30,12 @@ export const fetchUserData = async () => {
             'Authorization': `Bearer ${localStorage.getItem("jwt")}`
         }
     })
-        .then((response) => response.text())
-        .catch((error) => console.log(error));
+        .then((response) => {
+            if (response.ok) {
+                return response.text()
+            }
+        })
+        .catch((error) => error);
 }
 
 export const fetchData = async (category, id) => {
@@ -55,7 +47,7 @@ export const fetchData = async (category, id) => {
         }
     })
         .then((response) => response.json())
-        .catch((error) => console.log(error));
+        .catch((error) => error);
 }
 
 export const postData = async (category, body) => {
@@ -67,8 +59,16 @@ export const postData = async (category, body) => {
         },
         body: JSON.stringify(body)
     })
-        .then((response) => response.json())
-        .catch((error) => console.log(error));
+        .then((response) => {
+            if (!response.ok) {
+                return response.json()
+            }
+        })
+        .then((error) => {
+            if (error) {
+                return error.message
+            }
+        })
 }
 
 export const deleteItem = async ({key, id}) => {
@@ -80,7 +80,7 @@ export const deleteItem = async ({key, id}) => {
         }
     })
         .then((response) => response.json())
-        .catch((error) => console.log(error));
+        .catch((error) => error);
 };
 
 export const getBudgetById = async (id) => {
@@ -98,7 +98,11 @@ export const createBudget = async ({name, amount}) => {
         amount: +amount,
     };
 
-    return await postData("budgets", newItem)
+    const error = await postData("budgets", newItem);
+
+    if (error) {
+        throw new Error(error);
+    }
 };
 
 export const createExpense = async ({name, amount, budgetId}) => {
@@ -108,7 +112,11 @@ export const createExpense = async ({name, amount, budgetId}) => {
         budgetId: budgetId,
     };
 
-    return await postData("expenses", newItem)
+    const error = await postData("expenses", newItem);
+
+    if (error) {
+        throw new Error(error);
+    }
 };
 
 export const calculateSpentByBudget = async (budgetId) => {

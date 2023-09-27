@@ -6,13 +6,14 @@ import com.example.moneykeeper.entity.Budget;
 import com.example.moneykeeper.entity.User;
 import com.example.moneykeeper.repository.BudgetRepository;
 import com.example.moneykeeper.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,22 +42,24 @@ public class BudgetController {
     }
 
     @PostMapping("/budgets")
-    public Budget addBudget(@RequestBody BudgetRequest budgetRequest) {
+    public Budget addBudget(@RequestBody BudgetRequest budgetRequest, HttpServletResponse response) throws IOException {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         Optional<User> user = userRepository.findUserById(principal.getId());
 
+        Budget budget = new Budget();
+        try {
+            budget.setColor(budgetRequest.getColor());
+            budget.setDate(LocalDate.now());
+            budget.setName(budgetRequest.getName());
+            budget.setAmount(budgetRequest.getAmount());
+            budget.setUser(user.orElse(null));
 
-        // TODO: add exception if principal is null
-        Budget budget = new Budget(
-                budgetRequest.getColor(),
-                LocalDate.now(),
-                budgetRequest.getName(),
-                budgetRequest.getAmount(),
-                user.orElse(null)
-        );
+            budgetRepository.save(budget);
+        } catch (DataIntegrityViolationException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+        }
 
-        budgetRepository.save(budget);
         return budget;
     }
 

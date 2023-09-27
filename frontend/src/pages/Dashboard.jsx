@@ -18,8 +18,7 @@ import {
     deleteItem,
     fetchData,
     fetchUserData,
-    signin,
-    signup,
+    auth,
     waait,
 } from "../helpers";
 
@@ -56,20 +55,16 @@ export async function dashboardAction({request}) {
                 password: values.password
             }
 
-            const jwt = await signin(userData)
-                .then((response) => {
-                    if (response.ok) {
-                        return response.text()
-                    }
-                })
+            const response = await auth("signin", userData)
 
-            if (jwt) {
-                localStorage.setItem("jwt", jwt);
+            if (response) {
+                localStorage.setItem("jwt", response);
+
                 return toast.success(`Welcome, ${values.username}`);
             }
             return toast.error("Invalid username or password!")
         } catch (e) {
-            throw new Error("There was a problem creating your account.");
+            throw new Error("There was a problem singin into your account.");
         }
     }
 
@@ -81,18 +76,15 @@ export async function dashboardAction({request}) {
                 password: values.password
             }
 
-            const jwt = await signup(userData)
-                .then((response) => {
-                    if (response.ok) {
-                        return response.text()
-                    }
-                })
+            const response = await auth("signup", userData)
 
-            if (jwt) {
-                localStorage.setItem("jwt", jwt);
-                return toast.success(`Welcome, ${values.username}`);
+            if (!response.includes("Choose")) {
+                localStorage.setItem("jwt", response);
+
+                return toast.success(`Welcome, ${values.username}`)
+            } else {
+                return toast.error(response);
             }
-            return toast.error("Invalid username or password!")
         } catch (e) {
             throw new Error("There was a problem creating your account.");
         }
@@ -107,13 +99,13 @@ export async function dashboardAction({request}) {
 
             return toast.success("Budget created!");
         } catch (e) {
-            throw new Error("There was a problem creating your budget.");
+            throw new Error(e.message);
         }
     }
 
     if (_action === "createExpense") {
         try {
-            await createExpense({
+            const error = await createExpense({
                 name: values.newExpense,
                 amount: values.newExpenseAmount,
                 budgetId: values.newExpenseBudget,
@@ -121,7 +113,7 @@ export async function dashboardAction({request}) {
 
             return toast.success(`Expense ${values.newExpense} created!`);
         } catch (e) {
-            throw new Error("There was a problem creating your expense.");
+            throw new Error(e.message);
         }
     }
 

@@ -26,7 +26,6 @@ public class Budget {
     private int amount;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy = "budget")

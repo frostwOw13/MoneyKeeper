@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,8 @@ public class TokenFilter extends OncePerRequestFilter {
                 try {
                     username = jwtCore.getNameFromJwt(jwt);
                 } catch (ExpiredJwtException e) {
-                    //TODO
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                    return;
                 }
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -56,7 +56,8 @@ public class TokenFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            //TODO
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         filterChain.doFilter(request, response);
