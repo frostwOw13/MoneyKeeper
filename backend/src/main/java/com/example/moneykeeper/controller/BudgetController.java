@@ -1,24 +1,27 @@
 package com.example.moneykeeper.controller;
 
 import com.example.moneykeeper.UserDetailsImpl;
-import com.example.moneykeeper.dto.BudgetRequest;
 import com.example.moneykeeper.entity.Budget;
 import com.example.moneykeeper.entity.User;
+import com.example.moneykeeper.error.ErrorPresentation;
+import com.example.moneykeeper.record.BudgetRecord;
 import com.example.moneykeeper.repository.BudgetRepository;
 import com.example.moneykeeper.repository.UserRepository;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("api/budgets")
 public class BudgetController {
 
     @Autowired
@@ -27,45 +30,72 @@ public class BudgetController {
     @Autowired
     private BudgetRepository budgetRepository;
 
-    @GetMapping("/budgets")
-    public List<Budget> getAllBudgets() {
+    @GetMapping
+    public ResponseEntity<List<Budget>> getAllBudgets() {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return budgetRepository.findBudgetsByUserId(principal.getId());
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(budgetRepository.findBudgetsByUserId(principal.getId()));
     }
 
-    @GetMapping("/budgets/{id}")
-    public Budget getBudgetById(@PathVariable int id) {
+    @GetMapping("{id}")
+    public ResponseEntity<Budget> getBudgetById(@PathVariable int id) {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return budgetRepository.findBudgetsByIdAndUserId(id, principal.getId());
+        return ResponseEntity.of(budgetRepository.findBudgetsByIdAndUserId(id, principal.getId()));
     }
 
-    @PostMapping("/budgets")
-    public Budget addBudget(@RequestBody BudgetRequest budgetRequest, HttpServletResponse response) throws IOException {
+    @PostMapping
+    public ResponseEntity<?> addBudget(
+            @RequestBody BudgetRecord payload,
+            UriComponentsBuilder uriComponentsBuilder
+    ) {
         UserDetailsImpl principal = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
         Optional<User> user = userRepository.findUserById(principal.getId());
 
-        Budget budget = new Budget();
-        try {
-            budget.setColor(budgetRequest.getColor());
-            budget.setDate(LocalDate.now());
-            budget.setName(budgetRequest.getName());
-            budget.setAmount(budgetRequest.getAmount());
-            budget.setUser(user.orElse(null));
+        if (user.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorPresentation(List.of(
+                            "Session expired"
+                    )));
+        } else if (payload.name() == null || payload.name().isBlank()) {
+            return ResponseEntity
+                    .badRequest()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorPresentation(List.of(
+                            "Name of budget should be present"
+                    )));
+        } else {
+            var budget = new Budget(
+                    payload.color(),
+                    LocalDate.now(),
+                    payload.name(),
+                    payload.amount(),
+                    user.get()
+            );
 
             budgetRepository.save(budget);
-        } catch (DataIntegrityViolationException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            return ResponseEntity
+                    .created(uriComponentsBuilder
+                            .path("/api/budgets/{id}")
+                            .build(Map.of("id", budget.getId())))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(budget);
         }
-
-        return budget;
     }
 
-    @DeleteMapping("/budgets/{id}")
-    public String deleteBudget(@PathVariable int id) {
-        budgetRepository.deleteById(id);
-        return "Budget with id = " + id + " successfully deleted!";
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteBudget(@PathVariable int id) {
+        try {
+            budgetRepository.deleteById(id);
+            return ResponseEntity
+                    .ok("Budget with id = " + id + " successfully deleted!");
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorPresentation(List.of(e.getMessage())));
+        }
     }
 }

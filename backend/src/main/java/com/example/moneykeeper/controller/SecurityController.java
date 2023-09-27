@@ -1,9 +1,8 @@
 package com.example.moneykeeper.controller;
 
 import com.example.moneykeeper.JwtCore;
-import com.example.moneykeeper.dto.SigninRequest;
-import com.example.moneykeeper.dto.SignupRequest;
 import com.example.moneykeeper.entity.User;
+import com.example.moneykeeper.record.UserDetailsRecord;
 import com.example.moneykeeper.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,32 +35,32 @@ public class SecurityController {
     private JwtCore jwtCore;
 
     @PostMapping("/signup")
-    ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
-        if (userRepository.existsUserByUsername(signupRequest.getUsername())) {
+    ResponseEntity<?> signup(@RequestBody UserDetailsRecord request) {
+        if (userRepository.existsUserByUsername(request.username())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Choose different username");
         }
 
-        if (userRepository.existsUserByEmail(signupRequest.getEmail())) {
+        if (userRepository.existsUserByEmail(request.email())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Choose different email");
         }
 
         User user = new User();
-        user.setUsername(signupRequest.getUsername());
-        user.setEmail(signupRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
         userRepository.save(user);
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signupRequest.getUsername(), signupRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
         String jwt = jwtCore.generateToken(authentication);
 
         return ResponseEntity.ok(jwt);
     }
 
     @PostMapping("/signin")
-    ResponseEntity<?> signin(@RequestBody SigninRequest signinRequest) {
+    ResponseEntity<?> signin(@RequestBody UserDetailsRecord request) {
         Authentication authentication = null;
         try {
-            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getUsername(), signinRequest.getPassword()));
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
         } catch (BadCredentialsException e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

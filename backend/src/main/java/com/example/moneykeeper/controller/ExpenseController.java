@@ -1,9 +1,9 @@
 package com.example.moneykeeper.controller;
 
 import com.example.moneykeeper.UserDetailsImpl;
-import com.example.moneykeeper.dto.ExpenseRequest;
 import com.example.moneykeeper.entity.Budget;
 import com.example.moneykeeper.entity.Expense;
+import com.example.moneykeeper.record.ExpenseRecord;
 import com.example.moneykeeper.repository.BudgetRepository;
 import com.example.moneykeeper.repository.ExpenseRepository;
 import com.example.moneykeeper.repository.UserRepository;
@@ -52,13 +52,13 @@ public class ExpenseController {
     }
 
     @PostMapping("/expenses")
-    public Expense addExpense(@RequestBody ExpenseRequest expenseRequest, HttpServletResponse response) throws IOException {
-        Optional<Budget> budget = budgetRepository.findById(expenseRequest.getBudgetId());
+    public Expense addExpense(@RequestBody ExpenseRecord payload, HttpServletResponse response) throws IOException {
+        Optional<Budget> budget = budgetRepository.findById(payload.budgetId());
 
         Expense expense = new Expense();
         try {
-            expense.setName(expenseRequest.getName());
-            expense.setAmount(expenseRequest.getAmount());
+            expense.setName(payload.name());
+            expense.setAmount(payload.amount());
             expense.setDate(LocalDate.now());
             expense.setBudget(budget.orElse(null));
 
