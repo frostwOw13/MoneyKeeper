@@ -87,16 +87,21 @@ public class SecurityController {
 
     @PostMapping("/signin")
     ResponseEntity<?> signin(@RequestBody UserDetailsRecord request) {
-        Authentication authentication = null;
         try {
-            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtCore.generateToken(authentication);
+
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(jwt);
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ErrorRecord(List.of(e.getMessage())));
         }
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtCore.generateToken(authentication);
-
-        return ResponseEntity.ok(jwt);
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -153,12 +154,7 @@ class SecurityControllerTest {
     @Test
     void signup_PayloadIsValid_ReturnsValidResponse() {
         // given
-        User user = new User();
-        user.setPassword("password");
-        user.setUsername("username");
-        user.setEmail("example@gmail.com");
-
-        UserDetailsRecord request = new UserDetailsRecord(user.getUsername(), user.getEmail(), user.getPassword());
+        UserDetailsRecord request = new UserDetailsRecord("username", "example@gmail.com", "password");
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
         String jwt = jwtCore.generateToken(authentication);
@@ -171,5 +167,41 @@ class SecurityControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
         assertEquals(jwt, response.getBody());
+    }
+
+    @Test
+    void signin_PayloadIsValid_ReturnsValidResponse() {
+        // given
+        UserDetailsRecord request = new UserDetailsRecord("username", "example@gmail.com", "password");
+
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+        String jwt = jwtCore.generateToken(authentication);
+
+        // when
+        ResponseEntity<?> response = this.controller.signin(request);
+
+        // then
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+        assertEquals(jwt, response.getBody());
+    }
+
+    @Test
+    void signin_PayloadIsInvalid_ReturnsValidResponse() {
+        // given
+        UserDetailsRecord request = new UserDetailsRecord("username", "example@gmail.com", "password");
+
+        String errorMessage = "Bad credentials";
+        doThrow((new BadCredentialsException(errorMessage))).when(this.authenticationManager).authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+
+        // when
+        ResponseEntity<?> response = this.controller.signin(request);
+
+        // then
+        assertNotNull(response);
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+        assertEquals(new ErrorRecord(List.of(errorMessage)), response.getBody());
     }
 }
