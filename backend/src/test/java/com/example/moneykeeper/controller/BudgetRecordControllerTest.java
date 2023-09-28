@@ -3,7 +3,7 @@ package com.example.moneykeeper.controller;
 import com.example.moneykeeper.UserDetailsImpl;
 import com.example.moneykeeper.entity.Budget;
 import com.example.moneykeeper.entity.User;
-import com.example.moneykeeper.error.ErrorPresentation;
+import com.example.moneykeeper.record.ErrorRecord;
 import com.example.moneykeeper.record.BudgetRecord;
 import com.example.moneykeeper.repository.BudgetRepository;
 import com.example.moneykeeper.repository.UserRepository;
@@ -146,7 +146,7 @@ class BudgetRecordControllerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        assertEquals(new ErrorPresentation(List.of(errorMessage)), response.getBody());
+        assertEquals(new ErrorRecord(List.of(errorMessage)), response.getBody());
 
         verifyNoMoreInteractions(this.budgetRepository);
     }
@@ -170,7 +170,7 @@ class BudgetRecordControllerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        assertEquals(new ErrorPresentation(List.of(errorMessage)), response.getBody());
+        assertEquals(new ErrorRecord(List.of(errorMessage)), response.getBody());
 
         verifyNoMoreInteractions(this.budgetRepository);
     }
@@ -212,7 +212,7 @@ class BudgetRecordControllerTest {
         assertNotNull(response);
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        assertEquals(new ErrorPresentation(List.of(errorMessage)), response.getBody());
+        assertEquals(new ErrorRecord(List.of(errorMessage)), response.getBody());
 
         verifyNoMoreInteractions(this.budgetRepository);
     }

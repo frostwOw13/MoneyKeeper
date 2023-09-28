@@ -3,7 +3,7 @@ package com.example.moneykeeper.controller;
 import com.example.moneykeeper.UserDetailsImpl;
 import com.example.moneykeeper.entity.Budget;
 import com.example.moneykeeper.entity.User;
-import com.example.moneykeeper.error.ErrorPresentation;
+import com.example.moneykeeper.record.ErrorRecord;
 import com.example.moneykeeper.record.BudgetRecord;
 import com.example.moneykeeper.repository.BudgetRepository;
 import com.example.moneykeeper.repository.UserRepository;
@@ -56,18 +56,18 @@ public class BudgetController {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new ErrorPresentation(List.of(
+                    .body(new ErrorRecord(List.of(
                             "Session expired"
                     )));
         } else if (payload.name() == null || payload.name().isBlank()) {
             return ResponseEntity
-                    .badRequest()
+                    .status(HttpStatus.BAD_REQUEST)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new ErrorPresentation(List.of(
+                    .body(new ErrorRecord(List.of(
                             "Name of budget should be present"
                     )));
         } else {
-            var budget = new Budget(
+            Budget budget = new Budget(
                     payload.color(),
                     LocalDate.now(),
                     payload.name(),
@@ -95,7 +95,7 @@ public class BudgetController {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(new ErrorPresentation(List.of(e.getMessage())));
+                    .body(new ErrorRecord(List.of(e.getMessage())));
         }
     }
 }
