@@ -35,7 +35,7 @@ class MainControllerTest {
         // then
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+        assertEquals(MediaType.TEXT_PLAIN, response.getHeaders().getContentType());
         assertEquals(username, response.getBody());
     }
 }
