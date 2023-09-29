@@ -12,7 +12,7 @@ public class MainController {
     @GetMapping
     public ResponseEntity<String> getUsername(Principal principal) {
         return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.TEXT_PLAIN)
                 .body(principal.getName());
     }
 }

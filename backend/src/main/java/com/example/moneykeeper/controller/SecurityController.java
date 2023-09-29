@@ -81,7 +81,7 @@ public class SecurityController {
 
         return ResponseEntity
                 .ok()
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.TEXT_PLAIN)
                 .body(jwt);
     }
 
@@ -95,7 +95,7 @@ public class SecurityController {
 
             return ResponseEntity
                     .ok()
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.TEXT_PLAIN)
                     .body(jwt);
         } catch (BadCredentialsException e) {
             return ResponseEntity

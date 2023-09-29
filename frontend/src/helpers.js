@@ -23,7 +23,7 @@ export const auth = async (action, userData) => {
 }
 
 export const fetchUserData = async () => {
-    return await fetch(config.SERVER_URL + "/user/", {
+    return await fetch(config.SERVER_URL + "/user", {
         method: "GET",
         headers: {
             'Content-Type': 'application/json',
